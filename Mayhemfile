@@ -1,0 +1,6 @@
+project: rnshah9/l1vm
+target: l1vm
+
+cmds:
+  - cmd: /repo/vm/l1vm-nojit /test
+    filepath: /test.l1obj

@@ -1,14 +1,14 @@
 #!/bin/bash
 # changed: install to /home/foo/bin instead to /usr/local/bin
 
-sudo apt-get update
+apt-get update
 
 export PATH="$HOME/bin:$PATH"
 export LD_LIBRARY_PATH="$HOME/bin:$LD_LIBRARY_PATH"
 
 if ! dpkg -s libsdl2-dev &> /dev/null; then
 	echo "try to install libsdl2-dev..."
-	if ! sudo apt-get install libsdl2-dev; then
+	if ! DEBIAN_FRONTEND=noninteractive apt-get install -y libsdl2-dev; then
 		echo "installation failed!"
 		exit 1
 	fi
@@ -16,7 +16,7 @@ fi
 
 if ! dpkg -s libsdl2-gfx-dev &> /dev/null; then
 	echo "try to install libsdl2-gfx-dev..."
-	if ! sudo apt-get install libsdl2-gfx-dev; then
+	if ! DEBIAN_FRONTEND=noninteractive apt-get install -y libsdl2-gfx-dev; then
 		echo "installation failed!"
 		exit 1
 	fi
@@ -24,7 +24,7 @@ fi
 
 if ! dpkg -s libsdl2-image-dev &> /dev/null; then
 	echo "try to install libsdl2-image-dev..."
-	if ! sudo apt-get install libsdl2-image-dev; then
+	if ! DEBIAN_FRONTEND=noninteractive apt-get install -y libsdl2-image-dev; then
 		echo "installation failed!"
 		exit 1
 	fi
@@ -32,7 +32,7 @@ fi
 
 if ! dpkg -s libsdl2-ttf-dev &> /dev/null; then
 	echo "try to install libsdl2-ttf-dev..."
-	if ! sudo apt-get install libsdl2-ttf-dev; then
+	if ! DEBIAN_FRONTEND=noninteractive apt-get install -y libsdl2-ttf-dev; then
 		echo "installation failed!"
 		exit 1
 	fi
@@ -40,7 +40,7 @@ fi
 
 if ! dpkg -s libsdl2-mixer-dev &> /dev/null; then
 	echo "try to install libsdl2-mixer-dev..."
-	if ! sudo apt-get install libsdl2-mixer-dev; then
+	if ! DEBIAN_FRONTEND=noninteractive apt-get install -y libsdl2-mixer-dev; then
 		echo "installation failed!"
 		exit 1
 	fi
@@ -48,7 +48,7 @@ fi
 
 if ! dpkg -s libfann-dev &> /dev/null; then
 	echo "try to install libfann-dev..."
-	if ! sudo apt-get install libfann-dev; then
+	if ! DEBIAN_FRONTEND=noninteractive apt-get install -y libfann-dev; then
 		echo "installation failed!"
 		exit 1
 	fi
@@ -56,7 +56,7 @@ fi
 
 if ! dpkg -s libmpfrc++-dev &> /dev/null; then
 	echo "try to install libmpfrc++-dev..."
-	if ! sudo apt-get install libmpfrc++-dev; then
+	if ! DEBIAN_FRONTEND=noninteractive apt-get install -y libmpfrc++-dev; then
 		echo "installation failed!"
 		exit 1
 	fi
@@ -64,7 +64,7 @@ fi
 
 if ! dpkg -s libsodium-dev &> /dev/null; then
 	echo "try to install libsodium-dev..."
-	if ! sudo apt-get install libsodium-dev; then
+	if ! DEBIAN_FRONTEND=noninteractive apt-get install -y libsodium-dev; then
 		echo "installation failed!"
 		exit 1
 	fi
@@ -72,7 +72,7 @@ fi
 
 if ! dpkg -s libserialport-dev &> /dev/null; then
 	echo "try to install libserialport-dev..."
-	if ! sudo apt-get install libserialport-dev; then
+	if ! DEBIAN_FRONTEND=noninteractive apt-get install -y libserialport-dev; then
 		echo "installation failed!"
 		exit 1
 	fi
@@ -80,7 +80,7 @@ fi
 
 if ! dpkg -s cmake &> /dev/null; then
 	echo "try to install cmake..."
-	if ! sudo apt-get install cmake; then
+	if ! DEBIAN_FRONTEND=noninteractive apt-get install -y cmake; then
 		echo "installation failed!"
 		exit 1
 	fi
@@ -88,7 +88,7 @@ fi
 
 if ! dpkg -s make &> /dev/null; then
 	echo "try to install make..."
-	if ! sudo apt-get install make; then
+	if ! DEBIAN_FRONTEND=noninteractive apt-get install -y make; then
 		echo "installation failed!"
 		exit 1
 	fi
@@ -96,7 +96,7 @@ fi
 
 if ! dpkg -s git &> /dev/null; then
 	echo "try to install git..."
-	if ! sudo apt-get install git; then
+	if ! DEBIAN_FRONTEND=noninteractive apt-get install -y git; then
 		echo "installation failed!"
 		exit 1
 	fi
@@ -110,7 +110,7 @@ export CCPP=clang++
 # check if clang C compiler is installed
 if ! dpkg -s clang &> /dev/null; then
 	echo "try to install clang..."
-	if ! sudo apt-get install clang; then
+	if ! DEBIAN_FRONTEND=noninteractive apt-get install -y clang; then
 		echo "installation failed!"
 		exit 1
 	fi
@@ -144,7 +144,7 @@ fi
 # install mpreal.h include
 	echo "installing mpreal.h include file now..."
 	git clone https://github.com/advanpix/mpreal.git
-	sudo cp vm/modules/mpfr-c++/mpreal.h /usr/include
+	cp vm/modules/mpfr-c++/mpreal.h /usr/include
 
 cd assemb
 if zerobuild force; then
