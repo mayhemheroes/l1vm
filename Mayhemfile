@@ -1,6 +1,9 @@
 project: rnshah9/l1vm
 target: l1vm
+image: ghcr.io/rnshah9/playground:l1vm
 
 cmds:
   - cmd: /repo/vm/l1vm-nojit /test
     filepath: /test.l1obj
+  - cmd: /repo/assemb/l1asm /test
+    filepath: /test.l1asm
