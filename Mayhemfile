@@ -3,3 +3,4 @@ target: l1vm
 
 cmds:
   - cmd: /l1vm-nojit /test
+    filepath: /test.l1obj
