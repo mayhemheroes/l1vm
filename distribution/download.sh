@@ -1,25 +1,38 @@
-#!/bin/sh
+#!/bin/bash
 if [ $# -eq 0 ]
   then
     echo "usage: download.sh filename"
 	exit 1
 fi
 
+# get program name and first char of program name
+progname="$1"
+progfchar=${progname::1}
+
 # get program obj file and signature
-curl -O http://midnight-koder.net/blog/assets/l1vm/repo/$1.l1obj.bz2
-curl -O http://midnight-koder.net/blog/assets/l1vm/repo/$1.l1obj.gpg
+curl -O http://midnight-koder.net/blog/assets/l1vm/repo/$progfchar/$progname/$progname.l1obj.bz2
+curl -O http://midnight-koder.net/blog/assets/l1vm/repo/$progfchar/$progname/$progname.l1obj.gpg
 
 # get program source code if available
-curl -O http://midnight-koder.net/blog/assets/l1vm/repo/$1.l1com.bz2
-curl -O http://midnight-koder.net/blog/assets/l1vm/repo/$1.l1com.gpg
+curl -O http://midnight-koder.net/blog/assets/l1vm/repo/$progfchar/$progname/$progname.l1com.bz2
+curl -O http://midnight-koder.net/blog/assets/l1vm/repo/$progfchar/$progname/$progname.l1com.gpg
 
 # get readme if available
-curl -O http://midnight-koder.net/blog/assets/l1vm/repo/$1.readme.txt.bz2
-curl -O http://midnight-koder.net/blog/assets/l1vm/repo/$1.readme.txt.gpg
+curl -O http://midnight-koder.net/blog/assets/l1vm/repo/$progfchar/$progname/$progname.readme.txt.bz2
+curl -O http://midnight-koder.net/blog/assets/l1vm/repo/$progfchar/$progname/$progname.readme.txt.gpg
 
 #get data if available
-curl -O http://midnight-koder.net/blog/assets/l1vm/repo/$1.data.tar.bz2
-curl -O http://midnight-koder.net/blog/assets/l1vm/repo/$1.data.tar.gpg
+curl -O http://midnight-koder.net/blog/assets/l1vm/repo/$progfchar/$progname/$progname.data.tar.bz2
+curl -O http://midnight-koder.net/blog/assets/l1vm/repo/$progfchar/$progname/$progname.data.tar.gpg
+
+if [ -f $1.l1obj.bz2 ]; then
+	if ! gpg --verify $1.l1obj.gpg $1.l1obj.bz2; then
+	echo "ERROR: file signature of source code not valid!"
+	echo "removing files..."
+	rm $1.l1obj.gpg
+	rm $1.l1obj.bz2
+fi
+fi
 
 if [ -f $1.l1com.bz2 ]; then
 if ! gpg --verify $1.l1com.gpg $1.l1com.bz2; then
@@ -49,7 +62,11 @@ fi
 fi
 
 
-# unpack source code and install it
+## unpack obj file and install it
+bzip2 -d $1.l1obj.bz2
+cp $1.l1obj ~/l1vm/prog
+
+// unpack source code and install it
 bzip2 -d $1.l1com.bz2
 cp $1.l1com ~/l1vm/prog
 
@@ -71,7 +88,7 @@ if ! gpg --verify $1.l1obj.gpg $1.l1obj.bz2; then
 fi
 
 # copy program
-cp $1.l1obj.bz2 ~/l1vm/prog
+# cp $1.l1obj.bz2 ~/l1vm/prog
 
 echo "files installed!"
 echo "cleaning up..."

@@ -116,7 +116,7 @@ S2 load_module (U1 *name, S8 ind)
 {
 	U1 linux_lib_suffix[] = ".so";
 	U1 macos_lib_suffix[] = ".so";
-	U1 libname[MAXLINELEN];
+	U1 libname[MAXSTRLEN];
 
 	if (strlen_safe ((const char*) name, MAXLINELEN) > MAXLINELEN - 5)
 	{
@@ -1924,6 +1924,8 @@ S2 run (void *arg)
 
 		case 13:
 			//printf ("GETSHELLARG\n");
+			{
+			S8 shell_arg_len ALIGN = 0;
 			arg2 = code[ep + 2];
 			arg3 = code[ep + 3];
 			if (regi[arg2] > shell_args_ind)
@@ -1935,8 +1937,21 @@ S2 run (void *arg)
 				pthread_exit ((void *) 1);
 			}
 
-			snprintf ((char *) &data[regi[arg3]], sizeof ((const char *) shell_args[regi[arg2]]), "%s", (const char *) shell_args[regi[arg2]]);
+			// check target string size
+			shell_arg_len = strlen_safe ((const char *) shell_args[regi[arg2]], MAXLINELEN) + 1;
+
+			if (memory_bounds (regi[arg3], shell_arg_len) != 0)
+			{
+				printf ("ERROR: string overflow: shell argument %lli can't be saved in variable!\n", regi[arg2]);
+				PRINT_EPOS();
+				free (jumpoffs);
+				loop_stop ();
+        		pthread_exit ((void *) 1);
+			}
+
+			snprintf ((char *) &data[regi[arg3]], shell_arg_len, "%s", (const char *) shell_args[regi[arg2]]);
 			eoffs = 5;
+			}
 			break;
 
 		case 14:
@@ -2738,10 +2753,11 @@ void free_modules (void)
 
 void show_info (void)
 {
-	printf ("l1vm <program> [-C cpu_cores] [-S stacksize] [-q] <-args> <cmd args>\n");
+	printf ("l1vm <program> [-C cpu_cores] [-S stacksize] [-q] [-p run priority (-20 - 19)] <-args> <cmd args>\n");
 	printf ("-C cores : set maximum of threads that can be run\n");
 	printf ("-S stacksize : set the stack size\n");
-	printf ("-q : quiet run, don't show welcome messages\n\n");
+	printf ("-q : quiet run, don't show welcome messages\n");
+	printf ("-p : set run priority, -20 = highest, 19 = lowest priority\n\n");
 	printf ("program arguments for the program must be set by '-args':\n");
 	printf ("l1vm programname -args foo bar\n");
 	printf ("%s", VM_VERSION_STR);
@@ -2865,6 +2881,10 @@ int main (int ac, char *av[])
 
 	S8 new_cpu ALIGN;
 
+	// process priority on Linux
+    S4 run_priority = 0;        // -20 = highest priority, 19 = lowest priority
+
+
 	// printf ("DEBUG: ac: %i\n", ac);
 
     if (ac > 1)
@@ -2949,6 +2969,17 @@ int main (int ac, char *av[])
 								cleanup ();
 								exit (1);
 							}
+
+							if (av[i][0] == '-' && av[i][1] == 'p')
+							{
+								// set VM run priority
+								run_priority = atoi (av[i + 1]);
+								if (run_priority < -20 || run_priority > 19)
+								{
+									printf ("Run priority out of legal range! Set to default 0!\n");
+									run_priority = 0;
+								}
+							}
 						}
             			if (arglen > 2)
             			{
@@ -3016,6 +3047,9 @@ int main (int ac, char *av[])
 		cleanup ();
 		exit (1);
 	}
+
+	// set run priority
+	nice (run_priority);
 
 	threaddata = (struct threaddata *) calloc (max_cpu, sizeof (struct threaddata));
 	if (threaddata == NULL)

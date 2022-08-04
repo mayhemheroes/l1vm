@@ -22,7 +22,7 @@
 
  struct ast
  {
- 	U1 expr[MAXEXPRESSION][MAXARGS][MAXLINELEN];
+ 	U1 expr[MAXEXPRESSION][MAXARGS][MAXSTRLEN];
  	S4 expr_max;
  	S4 expr_args[MAXEXPRESSION]; 						// number of arguments in expression
  	S4 expr_reg[MAXEXPRESSION];							// registers of expression calculations = target registers
@@ -49,6 +49,7 @@
  void init_call_labels (void);
  S2 set_call_label (U1 *label);
  S2 check_labels (void);
+ S2 search_label (U1 *label);
 
  // string functions ===============================================================================
  size_t strlen_safe (const char * str, int maxlen);

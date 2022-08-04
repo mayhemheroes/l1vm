@@ -392,6 +392,25 @@ U1 *sdl_open_screen_full (U1 *sp, U1 *sp_top, U1 *sp_bottom, U1 *data)
 	return (sp);
 }
 
+U1 *sdl_set_window_title (U1 *sp, U1 *sp_top, U1 *sp_bottom, U1 *data)
+{
+	S8 title_address;
+
+	sp = stpopi ((U1 *) &title_address, sp, sp_top);
+	if (sp == NULL)
+	{
+		printf ("sdl_set_window_title: ERROR: stack corrupt!\n");
+		return (NULL);
+	}
+
+	if (window != NULL)
+	{
+		SDL_SetWindowTitle (window, (const char *) &data[title_address]);
+	}
+	
+	return (sp);
+}
+
 U1 *sdl_toggle_mouse_pointer (U1 *sp, U1 *sp_top, U1 *sp_bottom, U1 *data)
 {
 	S2 enable;

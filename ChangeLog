@@ -1,3 +1,57 @@
+L1VM (1.7.1)
+	NEW: VM: main.c show -p flag infos.
+	NEW: scripts in distribution now use "bash" as the shell, this fixes some errors!
+
+	FIXES: compiler now gives error if label is defined twice. And if function name already used.
+
+	Compiler: update: now "stpop" opcode to loadreg code part set.
+	Added script to build and install latest Clang from GitHub.
+
+-- Stefan Pietzonke <jay-t@gmx.net> Mon 01 Aug 2022 15:35 +0200
+
+L1VM (1.7.0)
+	NEW: compiler: "stpush" and "stpop" for use with multiple variables.
+	See example "prog/stack-new.l1com"
+
+	NEW: VM: run process priority flag on Linux:
+	$ l1vm fractalix-3.2 -p 19
+
+	The ranges go from -20 high priority to 19 lowest priority.
+
+-- Stefan Pietzonke <jay-t@gmx.net> Thu 21 Jul 2022 19:27 +0200
+
+L1VM - (1.6.0)
+	NEW: replaced all string constant sizes MAXLINELEN by MAXSTRLEN.
+	BUGFIX: VM: shell arguments length check added!
+
+	NEW: Doom Emacs syntax highlighter added.
+
+	VM: JIT-compiler reset to working version.
+	NEW: process handling flags in settings.h.
+	NEW "worker-hello" folder with experimental l1vmgodata data base client worker. See README there!
+
+	NEW: now download.sh script also installs .obj files!
+	VM/modules/endianess: aligning of function arguments removed to compile with gcc.
+	BUGFIXES: removed function args alignment on modules.
+
+-- Stefan Pietzonke <jay-t@gmx.net> Sun 3 Jul 2022 20:19 +0200
+
+L1VM - (1.5.9)
+	NEW: "ranges.l1h" and "prog/range-new.l1com" variable range checks macros.
+
+	NEW: now you can set a window title for the SDL windows:
+
+	(window_title_str :sdl_set_window_title call)
+
+	NEW: check if pointer variable source is constant: show error message if true.
+	NEW: syntax highlighters: "cast" command added.
+
+	NEW: process module now uses user "l1vm" which should "not" be in "sudoers" for making it safe!
+
+	NEW: Windows 11 WSL: updated build scripts to use "clang" and "clang++" compiler names!
+
+-- Stefan Pietzonke <jay-t@gmx.net> Sun 05 Jun 2022 16:51 +0200
+
 L1VM - (1.5.8)
 	NEW: added libsodium easy encrypt/decrypt function
 	NEW: "set" variable definition now with range sense check!

@@ -1,4 +1,4 @@
-L1VM README  2022-03-29
+L1VM README  2022-05-22
 =======================
 ![alt text](https://midnight-koder.net/blog/assets/l1vm/L1VM-stern-3-300x424.png "L1VM logo")
 
@@ -31,7 +31,7 @@ In pure console text I/O programs not linked with SDL library, the memory footpr
 About 10 MB RAM only as shown in the taskmanager by running a minimal test program!
 
 <b>
-The L1VM runs on Linux (x86_64, Arm), Windows 10 via WSL and macOS.
+The L1VM runs on Linux (x86_64, Arm), Windows 10, 11 via WSL and macOS.
 It has an preprocessor, assembler and compiler for my own language Brackets.
 On the Raspberry Pi the GPIO pins can be used with my GPIO module.
 Also the serial port can be used.
@@ -103,6 +103,7 @@ time - get time and date
 </pre>
 
 <h2>macOS</h2>
+The GitHub CI build now uses macOS 11 to build the VM.
 UPDATE now the modules are working!! I had to build them as "bundle"!
 NEW: macOS build scripts made together with sportfloh.
 And cedi did write the .yaml GitHub Actions file.
@@ -153,6 +154,18 @@ The team of the libsodium library. I use for generating random numbers.
 
 Without them this L1VM project would not be possible! Thank you! <br>
 ----------------------- <br>
+
+<h2>New: variable range checks</h2>
+Here is an example (prog/range-new.l1com):
+
+```
+int_out_of_range (r, x, y)
+	print_s (out_of_rangestr)
+	print_n
+(endif)
+```
+
+The code inside the "if" macro is run if "r" is less than "x" or greater as "y"!
 
 <h2>New: l1pre - the preprocessor</h2>
 The new "l1pre" preprocessor can be used to define macros and include files.
@@ -238,7 +251,7 @@ Use: install-debian.sh or install-jit-debian.sh
 <h3>Fedora Linux</h3>
 Use: install-zerobuild-fedora.sh or install-jit-zerobuild-fedora.sh
 
-<h3>Windows 10 WSL</h3>
+<h3>Windows 10, 11 WSL</h3>
 You need to edit: "include/settings.h":
 
 ```
