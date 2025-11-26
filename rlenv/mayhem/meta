@@ -1,0 +1,12 @@
+{
+  "workspace": "mayhemheroes",
+  "project": "l1vm",
+  "target": "l1vm",
+  "run_id": "52",
+  "ci_url": "https://github.com:443/mayhemheroes/l1vm//actions/runs/3812653795",
+  "run_image_name": "ghcr.io/mayhemheroes/l1vm:master",
+  "run_image_with_digest": "ghcr.io/mayhemheroes/l1vm@sha256:d9744191e4ce12fd49ff6ea8e6d46d3c216a2386637025e40664df5d848b0095",
+  "git_repo_url": "git@github.com:mayhemheroes/l1vm.git",
+  "git_revision": "db7f1451e564523941f283a5b8da011b7782fd40",
+  "target_executable": "/l1vm-nojit"
+}

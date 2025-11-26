@@ -1,0 +1,159 @@
+# ============================================================================
+# RLENV Patch Playground - l1vm
+# Single-stage Dockerfile for patching workflow
+# ============================================================================
+# Original image: ghcr.io/mayhemheroes/l1vm:master
+# Git revision: db7f1451e564523941f283a5b8da011b7782fd40
+# Target executable: /l1vm-nojit
+# ============================================================================
+
+# ============================================================================
+# 1. Base Image Selection
+# ============================================================================
+FROM --platform=linux/amd64 ubuntu:20.04
+
+# ============================================================================
+# 2. System Dependencies (merged from all stages)
+# ============================================================================
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    build-essential \
+    clang \
+    cmake \
+    make \
+    git \
+    libsdl2-dev \
+    libsdl2-gfx-dev \
+    libsdl2-image-dev \
+    libsdl2-ttf-dev \
+    libsdl2-mixer-dev \
+    libfann-dev \
+    libmpfrc++-dev \
+    libsodium-dev \
+    libserialport-dev \
+    jq \
+    && rm -rf /var/lib/apt/lists/*
+
+# ============================================================================
+# 3. Copy MTV Binary (REQUIRED for validation)
+# ============================================================================
+COPY --from="us-east4-docker.pkg.dev/forallsecure-1/rlenv-staging/rlenv-mcp-static:latest" \
+     /rlenv/bin/mtv /rlenv/bin/mtv
+
+# ============================================================================
+# 4. Language-Specific Setup
+# ============================================================================
+ENV CC=clang
+ENV CCPP=clang++
+ENV PATH=/root/bin:${PATH}
+ENV LD_LIBRARY_PATH=/root/bin
+
+# ============================================================================
+# 5. Copy Source Code (EARLY - source exists now)
+# ============================================================================
+COPY . /rlenv/source/l1vm/
+
+# ============================================================================
+# 6. Make Source World-Writable (REQUIRED for non-root rebuilds)
+# ============================================================================
+RUN chmod -R 777 /rlenv/source
+
+# ============================================================================
+# 7. Set Working Directory
+# ============================================================================
+WORKDIR /rlenv/source/l1vm/
+
+# ============================================================================
+# 8. Install zerobuild (build dependency from GitHub)
+# ============================================================================
+# Create ~/bin directory for tooling
+RUN mkdir -p /root/bin
+
+# Clone and build zerobuild
+RUN git clone https://github.com/koder77/zerobuild.git /tmp/zerobuild && \
+    cd /tmp/zerobuild && \
+    ./make.sh && \
+    cp zerobuild /root/bin/ && \
+    cd / && \
+    rm -rf /tmp/zerobuild
+
+# Copy patched mpreal.h from the repo (contains fixes for recent MPFR)
+# The vm/modules/mpfr-c++/mpreal.h is a patched version that replaces srcptr() with xsrcptr()
+RUN cp vm/modules/mpfr-c++/mpreal.h /usr/include/
+
+# ============================================================================
+# 9. Build Application
+# ============================================================================
+# Fix MPFR module zerobuild config to add required preprocessor defines
+RUN sed -i 's/cflags = "-fPIC -O3 -fomit-frame-pointer -Wall"/cflags = "-fPIC -O3 -fomit-frame-pointer -Wall -DMPFR_USE_NO_MACRO -DMPFR_USE_INTMAX_T"/' \
+    vm/modules/mpfr-c++/zerobuild.txt
+
+# Build assembler
+RUN cd assemb && zerobuild force
+
+# Build compiler
+RUN cd comp && zerobuild force
+
+# Build preprocessor
+RUN cd prepro && zerobuild force
+
+# Build VM (no JIT version - outputs l1vm-nojit directly)
+RUN cd vm && zerobuild zerobuild-nojit.txt force
+
+# Copy built binaries to ~/bin
+RUN cp assemb/l1asm /root/bin/ && \
+    cp comp/l1com /root/bin/ && \
+    cp prepro/l1pre /root/bin/ && \
+    cp vm/l1vm* /root/bin/
+
+# Build modules
+RUN cd modules && chmod +x *.sh && ./build.sh && ./install.sh
+
+# Build programs
+RUN chmod +x *.sh && ./build-all.sh || true
+
+# ============================================================================
+# 10. Copy Artifacts to Expected Locations
+# ============================================================================
+RUN cp /rlenv/source/l1vm/vm/l1vm-nojit /l1vm-nojit
+
+# Create necessary directories for VM runtime
+RUN mkdir -p /root/l1vm/prog /root/l1vm/lib /root/l1vm/include /root/l1vm/man
+
+# Copy runtime files
+RUN cp -r /rlenv/source/l1vm/prog /root/l1vm/ && \
+    cp /rlenv/source/l1vm/lib/sdl-lib* /root/l1vm/prog/ 2>/dev/null || true && \
+    cp -r /rlenv/source/l1vm/lib /root/l1vm/ && \
+    cp -r /rlenv/source/l1vm/fonts /root/l1vm/ && \
+    cp /rlenv/source/l1vm/include-lib/* /root/l1vm/include/ && \
+    cp -R /rlenv/source/l1vm/fann /root/l1vm/ 2>/dev/null || true
+
+# ============================================================================
+# 11. Permission Management (REQUIRED)
+# ============================================================================
+# Target executable (rwxrw-rw-)
+RUN chmod 766 /l1vm-nojit
+
+# Make /root accessible to non-root users (for rebuild access to toolchain)
+RUN chmod 777 /root && \
+    chmod -R 777 /root/bin 2>/dev/null || true && \
+    chmod -R 777 /root/l1vm 2>/dev/null || true
+
+# ============================================================================
+# 12. Copy rlenv Directory (MUST BE NEAR END - doesn't exist yet!)
+# ============================================================================
+COPY rlenv /rlenv
+
+# ============================================================================
+# 13. Final Permission Fix (REQUIRED)
+# ============================================================================
+RUN chmod -R 777 /rlenv/source
+
+# ============================================================================
+# 14. Set Entry Point
+# ============================================================================
+CMD ["/l1vm-nojit"]
+
+# ============================================================================
+# 15. Reset Working Directory
+# ============================================================================
+WORKDIR /

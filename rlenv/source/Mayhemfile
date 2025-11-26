@@ -1,0 +1,11 @@
+project: mayhemheroes/l1vm
+target: l1vm
+
+cmds:
+  - cmd: /l1vm-nojit /test
+    filepath: /test.l1obj
+    env: {}
+image: ghcr.io/mayhemheroes/l1vm@sha256:d9744191e4ce12fd49ff6ea8e6d46d3c216a2386637025e40664df5d848b0095
+duration: 60
+testsuite:
+  - https://app.mayhem.security/mayhemheroes/l1vm/l1vm/testsuite.tar
