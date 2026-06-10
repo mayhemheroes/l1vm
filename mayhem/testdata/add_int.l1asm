@@ -1,0 +1,24 @@
+// add_int.l1asm — golden KAT #2 for l1vm.
+//
+// Loads two QUADWORD constants (40 and 2) from .data, adds them with `addi`,
+// prints the sum as an integer, prints a newline, then exits 0.
+// Expected stdout: "42\n" (see mayhem/testdata/golden/add_int.out).
+//
+// This exercises the arithmetic dispatch (addi: regi[3] = regi[1] + regi[2])
+// on top of the same loada / PRINTI / EXIT path documented in print_int.l1asm.
+// The second variable `b` lives at byte offset 8 in the variable region, hence
+// "@ 8 2" (the `@` offset is absolute within the region, not per-variable).
+.data
+Q 1 a
+@ 0 40
+Q 1 b
+@ 8 2
+.dend
+.code
+loada a 0 1
+loada b 0 2
+addi 1 2 3
+intr0 4 3 0 0
+intr0 7 0 0 0
+intr0 255 0 0 0
+.cend

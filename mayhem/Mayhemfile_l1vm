@@ -1,0 +1,18 @@
+project: l1vm
+target: l1vm
+
+# File-input target: the L1VM (no-JIT build) LOADS and RUNS an attacker-controlled bytecode
+# object. This is the parser-heavy + execution surface — load_object() reads the .l1obj header
+# (magic 0xC0DEBABE00002019, code/data section sizes, opcode stream, data-info table) into the
+# code/data arrays, then the VM dispatch loop executes the loaded opcodes.
+#
+# IMPORTANT — the VM does NOT take the object path directly: load_object() strcat's ".l1obj"
+# onto argv[1] (vm/load-object.c). So it is invoked as `l1vm-nojit /test` and opens `/test.l1obj`.
+# Mayhem writes each test input to `filepath:` (/test.l1obj), so this drives the loader with the
+# fuzzed bytes — the same form the original mayhemheroes integration used (target name preserved:
+# project l1vm / target l1vm). The standalone reproducer is built for local repro.
+cmds:
+  - cmd: /mayhem/l1vm-nojit /test
+    filepath: /test.l1obj
+testsuite:
+  - file:///mayhem/mayhem/testsuite
