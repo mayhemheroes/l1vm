@@ -1,0 +1,27 @@
+// print_int.l1asm — golden KAT #1 for l1vm.
+//
+// Loads the constant 42 from .data into integer register 1, prints it as an
+// integer, prints a newline, then exits 0. Expected stdout: "42\n"
+// (see mayhem/testdata/golden/print_int.out).
+//
+// l1asm .data / interrupt syntax (reverse-engineered from assemb/main.c and
+// vm/main.c — l1vm ships no in-tree example programs):
+//   * "Q 1 myint"  declares one QUADWORD (8-byte) variable named `myint`.
+//   * "@ 0 42"     stores the integer 42 into that variable. The `@` argument
+//                  is a numeric byte offset into the variable region (the first
+//                  user variable lives at offset 0 at run time).
+//   * "loada myint 0 1"  loads 8 bytes at (myint + offset 0) into integer reg 1.
+//   * "intr0 4 R 0 0"    PRINTI: prints regi[R] as %lli         (vm/main.c case 4)
+//   * "intr0 7 0 0 0"    PRINTNEWLINE: prints "\n"              (vm/main.c case 7)
+//   * "intr0 255 R 0 0"  EXIT: terminates with retcode regi[R]  (vm/main.c case 255)
+// NOTE: intr0's FIRST operand selects the sub-function (4/7/255), not 255.
+.data
+Q 1 myint
+@ 0 42
+.dend
+.code
+loada myint 0 1
+intr0 4 1 0 0
+intr0 7 0 0 0
+intr0 255 0 0 0
+.cend
